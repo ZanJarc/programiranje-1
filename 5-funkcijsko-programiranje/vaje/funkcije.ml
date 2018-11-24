@@ -223,12 +223,12 @@ let rec filter f seznam =
   let rec filter' acc f seznam =
     match seznam with
     | [] -> acc
-    | x : xs -> 
+    | x :: xs -> 
       if f x = true then
-        filter' x :: acc f xs
+        filter' (x :: acc) f xs
       else
         filter' acc f xs
-  in filter' [] f seznam
+  in reverse(filter' [] f seznam)
 
 
 
@@ -242,8 +242,22 @@ let rec filter f seznam =
  # exists ((<)8) [0; 1; 2; 3; 4; 5];;
  - : bool = false
 [*----------------------------------------------------------------------------*)
+let rec exists f seznam =
+  let rec exists' acc f seznam =
+    match seznam with
+    | [] -> 
+      if List.length acc >= 1 then
+       true
+      else
+       false
+    | x :: xs ->
+      if f x = true then 
+        exists' (x :: acc) f xs
+      else
+        exists' acc f xs
+  in exists' [] f seznam
 
-let rec exists = ()
+
 
 (*----------------------------------------------------------------------------*]
  Funkcija [first f default list] vrne prvi element seznama, za katerega
@@ -256,4 +270,13 @@ let rec exists = ()
  - : int = 0
 [*----------------------------------------------------------------------------*)
 
-let rec first = ()
+let rec first f default list =
+  let rec first' acc f default list =
+    match list with
+    | [] -> default
+    | x :: xs ->
+      if f x = true then
+        x
+      else
+        first' (x :: acc) f default xs
+  in first' [] f default list

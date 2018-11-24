@@ -145,8 +145,15 @@ let rec intbool_separate seznam =
  raziskovanje oz. historian, teacher in researcher. Definirajte tip
  [specialisation], ki loči med temi zaposlitvami.
 [*----------------------------------------------------------------------------*)
+type magic =
+  |Fire
+  |Ice
+  |Arcane
 
-
+type specialisation =
+  |Historian
+  |Teacher
+  |Researcher
 
 (*----------------------------------------------------------------------------*]
  Vsak od čarodejev začne kot začetnik, nato na neki točki postane študent,
@@ -162,6 +169,11 @@ let rec intbool_separate seznam =
  # professor;;
  - : wizard = {name = "Matija"; status = Employed (Fire, Teacher)}
 [*----------------------------------------------------------------------------*)
+type status =
+  |Newbie
+  |Student of magic * float
+  |Employed of magic * specialisation
+
 
 
 

@@ -1,4 +1,4 @@
-type a' option = None | Some of 'a
+
 
 type color =
   |Red
@@ -14,7 +14,3 @@ type 'a tree =
   | Empty
   | Node of 'a * 'a tree * 'a tree
   
-let has zero tree = 
-  match three with
-  | Empty ->
-  | Node (x, left_tree, right_tree) -> 
