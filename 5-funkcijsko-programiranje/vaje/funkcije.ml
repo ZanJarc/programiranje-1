@@ -158,7 +158,12 @@ let rec zip_enum_tlrec seznam1 seznam2 =
  - : int list * string list = ([0; 1; 2], ["a"; "b"; "c"])
 [*----------------------------------------------------------------------------*)
 
-let unzip = ()
+let rec unzip seznam =
+  match seznam with
+  | [] -> ([],[])
+  | (x, y) :: xs ->
+    let (left_list, right_list) = unzip xs in
+    (x :: left_list, y :: right_list)  
 
 (*----------------------------------------------------------------------------*]
  Funkcija [unzip_tlrec] je repno rekurzivna različica funkcije [unzip].

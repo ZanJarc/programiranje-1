@@ -100,8 +100,12 @@ let rec slice i k seznam =
  - : int list = [1; 0; 0; 0; 0; 0]
 [*----------------------------------------------------------------------------*)
 
-let rec insert = ()
- 
+let rec insert x k seznam = 
+  match k, seznam with
+  |_, _ when (k < 0) -> x :: seznam
+  |_, [] when (k > 0) -> seznam @ [x]
+  |0, s :: ss -> x :: s :: ss
+  |_, s :: ss -> s :: insert x (k -1) ss 
 (*----------------------------------------------------------------------------*]
  Funkcija [rotate n list] seznam zavrti za [n] mest v levo. Predpostavimo, da
  je [n] v mejah seznama.
@@ -173,7 +177,12 @@ let rec max_on_components seznam1 seznam2 =
  - : int = 10
 [*----------------------------------------------------------------------------*)
 
-let rec largest_element = ()
+let rec largest_element seznam =
+  match seznam with
+  |x :: y :: [] -> max x y
+  |x :: y :: xs -> largest_element ((max x y) :: xs)
 
 
-let rec second_largest = ()
+let second_largest seznam =
+  largest_element (remove (largest_element seznam) seznam)
+    

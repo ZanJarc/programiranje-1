@@ -174,6 +174,11 @@ type status =
   |Student of magic * float
   |Employed of magic * specialisation
 
+type wizard = {
+  name : name of char;
+  status : status
+}
+
 
 
 
