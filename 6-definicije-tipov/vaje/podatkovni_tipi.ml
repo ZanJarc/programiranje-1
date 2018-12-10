@@ -147,7 +147,7 @@ let rec intbool_separate seznam =
 [*----------------------------------------------------------------------------*)
 type magic =
   |Fire
-  |Ice
+  |Frost
   |Arcane
 
 type specialisation =
@@ -171,11 +171,11 @@ type specialisation =
 [*----------------------------------------------------------------------------*)
 type status =
   |Newbie
-  |Student of magic * float
+  |Student of magic * int
   |Employed of magic * specialisation
 
 type wizard = {
-  name : name of char;
+  name : string;
   status : status
 }
 
@@ -193,7 +193,12 @@ type wizard = {
  - : magic_counter = {fire = 1; frost = 1; arcane = 2}
 [*----------------------------------------------------------------------------*)
 
+type magic_counter = {fire : int; frost : int; arcane : int}
 
+let update counter = function
+  | Fire -> {counter with fire = counter.fire + 1}
+  | Frost -> {counter with frost = counter.frost + 1}
+  | Arcane -> {counter with arcane = counter.arcane + 1}
 
 (*----------------------------------------------------------------------------*]
  Funkcija [count_magic] sprejme seznam čarodejev in vrne števec uporabnikov
@@ -203,7 +208,16 @@ type wizard = {
  - : magic_counter = {fire = 3; frost = 0; arcane = 0}
 [*----------------------------------------------------------------------------*)
 
-let rec count_magic = ()
+let count_magic wizard_list =
+  let rec count counter = function
+    | [] -> counter
+    | {name; status} :: wizards -> (
+        match status with
+        | Newbie -> count counter wizards
+        | Student (magic, _) -> count (update counter magic) wizards
+        | Employed (magic, _) -> count (update counter magic) wizards)
+  in count {fire = 0; frost = 0; arcane = 0} wizard_list
+
 
 (*----------------------------------------------------------------------------*]
  Želimo poiskati primernega kandidata za delovni razpis. Študent lahko postane
@@ -219,4 +233,18 @@ let rec count_magic = ()
  - : string option = Some "Jaina"
 [*----------------------------------------------------------------------------*)
 
-let rec find_candidate = ()
+let find_candidate magic specialisation wizard_list =
+  let year =
+    match specialisation with
+    | Historian -> 3
+    | Researcher -> 4
+    | Teacher -> 5
+  in
+  let rec search = function
+    | [] -> None
+    | {name; status} :: wizards ->
+        match status with
+        | Student (m, y) when m = magic && y >= year -> Some name
+        | _ -> search wizards
+  in
+  search wizard_list
