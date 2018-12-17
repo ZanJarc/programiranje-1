@@ -23,6 +23,7 @@ type 'a tree =
 let leaf x = Node(Empty, x, Empty) 
 
 let test_tree = Node(Node(leaf 0 , 2 ,Empty), 5, Node(leaf 6, 7, leaf 11))
+let nice_tree = Node(Node(leaf 0 , 2, leaf 100), 5, Node(leaf 6, 7, leaf 11))
 
 (*----------------------------------------------------------------------------*]
  Funkcija [mirror] vrne prezrcaljeno drevo. Na primeru [test_tree] torej vrne
@@ -106,7 +107,10 @@ let rec prune = ()
  Node (Node (Empty, true, Empty), true, Node (Empty, true, Empty)))
 [*----------------------------------------------------------------------------*)
 
-let rec map_tree = ()
+let rec map_tree f tree =
+  match tree with
+  |Empty -> Empty
+  |Node(l, x, d) -> Node(map_tree f l, f x, map_tree f d)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [list_of_tree] pretvori drevo v seznam. Vrstni red podatkov v seznamu
@@ -116,7 +120,12 @@ let rec map_tree = ()
  - : int list = [0; 2; 5; 6; 7; 11]
 [*----------------------------------------------------------------------------*)
 
-let rec list_of_tree = ()
+let rec list_of_tree tree =
+  let rec aux acc tree =
+    match tree with
+    |Empty -> acc
+    |Node(l, x, d) -> aux  (x :: acc) l @ aux [] d
+  in aux [] tree
 
 (*----------------------------------------------------------------------------*]
  Funkcija [is_bst] preveri ali je drevo binarno iskalno drevo (Binary Search 
@@ -128,8 +137,20 @@ let rec list_of_tree = ()
  # test_tree |> mirror |> is_bst;;
  - : bool = false
 [*----------------------------------------------------------------------------*)
+let rec urejen seznam =
+  match seznam with
+  |[] -> true
+  |x :: [] -> true
+  |x :: y :: [] ->
+    if x <= y then true
+    else false
+  |x :: y :: xs ->
+    if x <= y then
+      urejen(y :: xs)
+    else
+      false
 
-let rec is_bst = ()
+let is_bst tree = urejen (list_of_tree tree)
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  V nadaljevanju predpostavljamo, da imajo dvojiška drevesa strukturo BST.
@@ -145,9 +166,28 @@ let rec is_bst = ()
  - : bool = false
 [*----------------------------------------------------------------------------*)
 
-let rec insert = ()
+let rec insert value tree =
+  match tree with
+  |Empty -> leaf value
+  |Node(Empty, x, Empty) ->
+    if value >= x then
+      Node(leaf x, value, Empty)
+    else
+      Node(leaf value, x, Empty)
+  |Node(left, x, right) ->
+    if value >= x then
+      Node(left, x, insert value right)
+    else
+      Node(insert value left, x ,right)
 
-let rec member = ()
+let rec member value tree = 
+  match tree with
+  |Empty -> false
+  |Node(left, x, right) ->
+    if value = x then true
+    else if value > x then member value right
+    else member value left
+
 
 (*----------------------------------------------------------------------------*]
  Funkcija [member2] ne privzame, da je drevo bst.
@@ -156,7 +196,7 @@ let rec member = ()
          funkcije [member2] na drevesu z n vozlišči, ki ima globino log(n). 
 [*----------------------------------------------------------------------------*)
 
-let rec member2 = ()
+let  member2 value tree = List.mem value (list_of_tree tree)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [bst_of_list] iz seznama naredi dvojiško iskalno drevo.
@@ -164,7 +204,20 @@ let rec member2 = ()
  # [11; 6; 7; 0; 2; 5] |> bst_of_list |> is_bst;;
  - : bool = true
 [*----------------------------------------------------------------------------*)
+let rec remove p list =
+  match list with
+  | [] -> []
+  | x :: xs when (p = x) -> remove p xs
+  | x :: xs -> x :: remove p xs
 
+
+let rec uredi list =
+  match list with
+  | [] -> []
+  | x ::[] -> [x]
+  | x :: y :: xs ->
+    let  minimum = min list 
+    in minimum :: uredi (remove minimum list)
 
 let rec bst_of_list = ()
 
