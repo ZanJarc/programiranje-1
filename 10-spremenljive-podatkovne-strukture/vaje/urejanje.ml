@@ -1,4 +1,4 @@
-(* ========== Vaje 5: Urejanje  ========== *)
+ (* ========== Vaje 5: Urejanje  ========== *)
 
 
 (*----------------------------------------------------------------------------*]
@@ -8,6 +8,11 @@
  # let l = randlist 10 10 ;;
  val l : int list = [0; 1; 0; 4; 0; 9; 1; 2; 5; 4]
 [*----------------------------------------------------------------------------*)
+let rec randlist len max =
+  match len with
+  | 0 -> []
+  | 1 -> [Random.int max]
+  | _ -> Random.int max :: randlist (len - 1) max
 
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
@@ -17,7 +22,9 @@
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  let test = (randlist 100 100) in (our_sort test = List.sort compare test);;
 [*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*)
-
+let test_sort_our_fun our_sort =
+  let test = (randlist 100 100) in
+    (our_sort test = List.sort compare test)
 
 (*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*]
  Urejanje z Vstavljanjem
@@ -34,13 +41,35 @@
  # insert 7 [];;
  - : int list = [7]
 [*----------------------------------------------------------------------------*)
-
+let rec insert y xs =
+  match xs with
+  | [] -> y :: []
+  | x :: [] ->
+    if x >= y then
+      y :: x :: []
+    else
+      x :: y :: []
+  | x :: ss ->
+  if y < x then
+    y :: x :: ss
+  else
+    x :: insert y ss
 
 (*----------------------------------------------------------------------------*]
  Prazen seznam je že urejen. Funkcija [insert_sort] uredi seznam tako da
  zaporedoma vstavlja vse elemente seznama v prazen seznam.
 [*----------------------------------------------------------------------------*)
-
+let rec insert_sort seznam =
+    let rec insert_sort' acc seznam =
+      match seznam with
+      | [] -> []
+      | x :: [] -> insert x acc
+      | x :: y :: xs ->
+        if acc = [] then
+          insert_sort' [x] (y :: xs)
+        else
+          insert x acc 
+    in insert_sort' [] seznam
 
 
 (*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*]
@@ -52,6 +81,35 @@
  najmanjši element v [list] in seznam [list'] enak [list] z odstranjeno prvo
  pojavitvijo elementa [z]. V primeru praznega seznama vrne [None]. 
 [*----------------------------------------------------------------------------*)
+let rec remove_first seznam value =
+  match seznam with
+  |[] -> []
+  | x :: [] ->
+    if x = value then
+      []
+    else
+      x :: []
+  | x :: xs ->
+    if x = value then
+      xs
+    else
+      x :: remove_first xs value
+
+
+let rec min_and_rest_list seznam =
+  match seznam with
+  | [] -> None
+  | x :: xs -> 
+    let rec aux acc1 acc2 seznam =
+      match seznam with
+      | [] -> Some (acc1, remove_first acc2 acc1) (*sele na koncu odstranimo pojavitev*)
+      | x :: xs ->
+        if x > acc1 then
+         aux acc1 (acc2 @ [x]) xs
+        else
+          aux x (acc2 @ [x]) xs
+    in aux (List.nth seznam 0) [] seznam
+
 
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
@@ -71,6 +129,26 @@
  Funkcija [selection_sort] je implementacija zgoraj opisanega algoritma.
  Namig: Uporabi [min_and_rest] iz prejšnje naloge.
 [*----------------------------------------------------------------------------*)
+let rec reverse seznam =
+  let rec aux acc seznam =
+    match seznam with
+    | [] -> acc
+    | x :: xs -> aux (x :: acc) xs
+  in aux [] seznam
+
+let selection_sort seznam =
+  match seznam with
+  | [] -> []
+  | x :: xs ->
+    let rec aux acc seznam =
+      match seznam with
+      | [] -> reverse acc
+      | x :: xs -> 
+          match min_and_rest_list seznam with
+          | None -> failwith "this never happens"
+          | Some (m, tail) -> 
+            	aux (m :: acc) tail
+    in aux [] seznam
 
 
 
@@ -100,7 +178,10 @@
  # test;;
  - : int array = [|0; 4; 2; 3; 1|]
 [*----------------------------------------------------------------------------*)
-
+let swap a i j =
+  let t = a.(i) in 
+  a.(i) <- a.(j);
+  a.(j) <- t
 
 (*----------------------------------------------------------------------------*]
  Funkcija [index_min a lower upper] poišče indeks najmanjšega elementa tabele
@@ -108,7 +189,13 @@
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  index_min [|0; 2; 9; 3; 6|] 2 4 = 4
 [*----------------------------------------------------------------------------*)
-
+(*let index_min a lower upper = 
+  for i = lower to upper do
+    let len = (upper - lower) in
+      List.init len (fun i -> a.(i))
+  done   *)   
+        
+        
 
 (*----------------------------------------------------------------------------*]
  Funkcija [selection_sort_array] implementira urejanje z izbiranjem na mestu. 
