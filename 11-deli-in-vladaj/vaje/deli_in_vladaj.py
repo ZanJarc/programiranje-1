@@ -89,3 +89,16 @@ def quicksort(a):
 # element po velikosti. Funkcija sme spremeniti tabelo [a]. Cilj naloge je, da
 # jo rešite brez da v celoti uredite tabelo [a].
 ##############################################################################
+def kth_element(a, k):
+    element = pivot(a, 0, len(a) - 1)
+    if element == k: #iskani element je ravno nas zacetni pivot
+        print("nasel sem element, ki je {}".format(a[element]))
+        return a[element]
+    elif element > k: #iskani element je levo od pivota
+        nov_seznam = a[:element]
+        quicksort(nov_seznam)
+        return nov_seznam[k]
+    else:
+        nov_seznam = a[(element + 1):]
+        quicksort(nov_seznam)
+        return nov_seznam[(k - element - 1)]
