@@ -92,7 +92,6 @@ def quicksort(a):
 def kth_element(a, k):
     element = pivot(a, 0, len(a) - 1)
     if element == k: #iskani element je ravno nas zacetni pivot
-        print("nasel sem element, ki je {}".format(a[element]))
         return a[element]
     elif element > k: #iskani element je levo od pivota
         nov_seznam = a[:element]
