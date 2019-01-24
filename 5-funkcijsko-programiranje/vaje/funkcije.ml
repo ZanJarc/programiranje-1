@@ -214,7 +214,7 @@ let rec apply_sequence f x n =
      acc
     else
       apply_sequence' (f x :: acc) f (f x) (n - 1)
-  in reverse(apply_sequence' [] f x n)
+  in reverse(apply_sequence' [x] f x n)
 
 (*----------------------------------------------------------------------------*]
  Funkcija [filter f list] vrne seznam elementov [list], pri katerih funkcija [f]
@@ -263,7 +263,11 @@ let rec exists f seznam =
   in exists' [] f seznam
 
 
-
+let rec ex f seznam =
+  if List.length(filter f seznam) > 0 then
+    true
+  else
+    false
 (*----------------------------------------------------------------------------*]
  Funkcija [first f default list] vrne prvi element seznama, za katerega
  funkcija [f] vrne [true]. Če takšnega elementa ni, vrne [default].

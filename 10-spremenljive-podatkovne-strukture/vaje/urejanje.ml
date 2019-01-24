@@ -108,7 +108,7 @@ let rec min_and_rest_list seznam =
          aux acc1 (acc2 @ [x]) xs
         else
           aux x (acc2 @ [x]) xs
-    in aux (List.nth seznam 0) [] seznam
+    in aux (List.nth seznam 0) [] seznam (* List.nth seznam 0 nam vrne prvi element seznama*)
 
 
 
@@ -136,7 +136,7 @@ let rec reverse seznam =
     | x :: xs -> aux (x :: acc) xs
   in aux [] seznam
 
-let selection_sort seznam =
+let rec selection_sort seznam =
   match seznam with
   | [] -> []
   | x :: xs ->
@@ -189,12 +189,13 @@ let swap a i j =
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  index_min [|0; 2; 9; 3; 6|] 2 4 = 4
 [*----------------------------------------------------------------------------*)
-(*let index_min a lower upper = 
+let index_min a lower upper =
+  let index_min = ref lower in
   for i = lower to upper do
-    let len = (upper - lower) in
-      List.init len (fun i -> a.(i))
-  done   *)   
-        
+    if a.(i) < a.(!index_min) then
+      index_min := i
+  done;
+  !index_min
         
 
 (*----------------------------------------------------------------------------*]
@@ -203,4 +204,16 @@ let swap a i j =
  Namig: Za testiranje uporabi funkciji [Array.of_list] in [Array.to_list]
  skupaj z [randlist].
 [*----------------------------------------------------------------------------*)
+let selection_sort_array a =
+  let index_end = Array.length a - 1 in
+  (* Every step moves boundary_sorted one place to the right. *)
+  for boundary_sorted = 0 to index_end do
+    let i = index_min a boundary_sorted index_end in
+    swap a i boundary_sorted
+  done
 
+let selection_sort_list list =
+  (* For testing purposes. *)
+  let a = Array.of_list list in
+  selection_sort_array a;
+  Array.to_list a

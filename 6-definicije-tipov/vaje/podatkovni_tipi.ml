@@ -100,7 +100,7 @@ let rec intbool_map f_int f_bool ib_list =
 [*----------------------------------------------------------------------------*)
 
 let rec intbool_reverse seznam =
-  let rec intbool_reverse' (acc : intbool_list) seznam =
+  let rec intbool_reverse' acc seznam =
     match seznam with
     | Empty -> acc
     | Int (v, seznam_tail) -> 

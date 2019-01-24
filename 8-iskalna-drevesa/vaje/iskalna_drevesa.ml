@@ -17,6 +17,10 @@
        /   / \
       0   6   11
 [*----------------------------------------------------------------------------*)
+type 'a tree =
+  |Node of 'a tree * 'a * 'a tree
+  |Empty
+
 
 let leaf x = Node(Empty, x, Empty) 
 
@@ -208,16 +212,21 @@ let rec remove p list =
   | x :: xs when (p = x) -> remove p xs
   | x :: xs -> x :: remove p xs
 
+let rec find_min list =
+  match list with
+  |[] -> 0
+  |x :: [] -> x
+  |x :: y :: xs -> find_min((min x y) :: xs)
 
 let rec uredi list =
   match list with
   | [] -> []
   | x ::[] -> [x]
   | x :: y :: xs ->
-    let  minimum = min list 
+    let  minimum = find_min (x :: y :: xs)  
     in minimum :: uredi (remove minimum list)
 
-let rec bst_of_list = ()
+let rec bst_of_list list =()
 
 (*----------------------------------------------------------------------------*]
  Funkcija [tree_sort] uredi seznam s pomočjo pretvorbe v bst.
@@ -241,7 +250,27 @@ let rec bst_of_list = ()
  # pred (Node(Empty, 5, leaf 7));;
  - : int option = None
 [*----------------------------------------------------------------------------*)
+let rec succ tree =
+  let rec minimal tree =
+    match tree with
+    |Empty -> None
+    |Node(Empty, x, _) -> Some x
+    |Node(l, x, r) -> minimal l
+in
+match tree with
+| Empty -> None
+|Node(_,_, r) -> minimal r
 
+let pred tree =
+  let rec maximal tree =
+    match tree with
+    |Empty -> None
+    |Node(_, x, Empty) -> Some x
+    |Node(l, x, r) -> maximal r
+in
+match tree with
+|Empty -> None
+|Node(l, _, _) -> maximal l
 
 (*----------------------------------------------------------------------------*]
  Na predavanjih ste omenili dva načina brisanja elementov iz drevesa. Prvi 
@@ -255,7 +284,17 @@ let rec bst_of_list = ()
  Node (Node (Node (Empty, 0, Empty), 2, Empty), 5,
  Node (Node (Empty, 6, Empty), 11, Empty))
 [*----------------------------------------------------------------------------*)
-
+let rec delete x = function
+  | Empty -> Empty
+  | Node(l, y, r) when x > y -> Node(l, y, delete x r)
+  | Node(l, y, r) when x < y -> Node(delete x l, y, r)
+  | Node(l, y, r) as bst -> (
+      (*Potrebno je izbrisati vozlišče.*)
+      match succ bst with
+      | None -> l (*To se zgodi le kadar je [r] enak [Empty].*)
+      | Some s ->
+        let clean_r = delete s r in
+        Node(l, s, clean_r))
 
 (*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*]
  SLOVARJI
@@ -268,6 +307,7 @@ let rec bst_of_list = ()
  vrednosti, ga parametriziramo kot [('key, 'value) dict].
 [*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*)
 
+type ('key, 'value) dict = ('key * 'value) tree
 
 (*----------------------------------------------------------------------------*]
  Napišite testni primer [test_dict]:
@@ -277,7 +317,12 @@ let rec bst_of_list = ()
          /
      "c":-2
 [*----------------------------------------------------------------------------*)
+let test_dict
+  : (string, int) dict
+  = Node (leaf ("a", 0), ("b", 1), Node (leaf ("c", -2), ("d", 2), Empty))
 
+let nice_dict =
+  Node(leaf("a", 1), ("b", 2), Node (leaf("c", -3), ("d", 4), leaf("e", 5)))
 
 (*----------------------------------------------------------------------------*]
  Funkcija [dict_get key dict] v slovarju poišče vrednost z ključem [key]. Ker
@@ -288,6 +333,16 @@ let rec bst_of_list = ()
  # dict_get "c" test_dict;;
  - : int option = Some (-2)
 [*----------------------------------------------------------------------------*)
+let rec dict_get key dict =
+  match dict with
+  |Empty -> None
+  |Node(l, (k, v), r) ->
+    if k = key then
+      Some v
+    else if k > key then
+      dict_get key l
+    else 
+      dict_get key r
 
       
 (*----------------------------------------------------------------------------*]
@@ -305,6 +360,12 @@ let rec bst_of_list = ()
  d : 2
  - : unit = ()
 [*----------------------------------------------------------------------------*)
+let rec print_dict = function
+  | Empty -> ()
+  | Node (d_l, (k, v), d_r) -> (
+      print_dict d_l;
+      print_string (k ^ " : "); print_int v; print_newline ();
+      print_dict d_r)
 
 
 (*----------------------------------------------------------------------------*]
@@ -325,4 +386,13 @@ let rec bst_of_list = ()
  d : 2
  - : unit = ()
 [*----------------------------------------------------------------------------*)
-
+let rec dict_insert key value dict =
+  match dict with
+  |Empty -> leaf(key, value)
+  |Node(l_d, (k, v), r_d) ->
+    if k = key then
+      Node(l_d, (k, value), r_d)
+    else if k > key then
+      Node(dict_insert key value l_d, (k, v), r_d)
+    else
+      Node(l_d, (k, v), dict_insert key value r_d)

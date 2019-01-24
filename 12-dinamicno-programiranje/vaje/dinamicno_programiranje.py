@@ -22,6 +22,8 @@ def max_cheese(matrix):
         else:
             return matrix[i][j] + max(vmesni(matrix, i + 1, j), vmesni(matrix, i, j + 1))
     return vmesni(matrix, 0, 0)
+
+    
 articles = [
 	("yoghurt", 0.39, 0.18),
 	("milk", 0.89, 1.03),
